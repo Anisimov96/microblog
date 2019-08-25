@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <table>
+        <tr valign='top'>
+            <td><img src="{{ user.avatar(128) }}"></td>
+            <td>
+                <h1>Пользователь: {{ user.username }}</h1>
+                {% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+                {% if user.last_seen %}
+                <p>Последний раз был на сайте: {{ moment(user.last_seen).format('LLL') }}</p>
+                {% endif %}
+                <p>На Вас подписанно (followers) {{ user.followers.count() }}, Вы подписаны (followed) {{ user.followed.count() }}</p>
+                {% if user == current_user %}
+                <p><a href="{{ url_for('main.edit_profile') }}">Редактировать профиль</a></p>
+                {% elif not current_user.is_following(user) %}
+                <p><a href="{{ url_for('main.follow', username=user.username) }}">Подписаться</a></p>
+                {% else %}
+                <p><a href="{{ url_for('main.unfollow', username=user.username) }}">Отписаться</a></p>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    {% for post in posts %}
+        {% include '_post.html' %}
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">&larr;</span> Новые записи
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    Предыдущие записи <span aria-hidden="true">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
